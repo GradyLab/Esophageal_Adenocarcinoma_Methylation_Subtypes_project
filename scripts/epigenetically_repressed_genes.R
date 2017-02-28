@@ -1,6 +1,6 @@
 # scripts for supplementary methods
 # author: SKM
-# initDate: 04Jan2016
+# initDate: 02Feb2017
 
 # Dependancies:
 # github functions: https://github.com/metamaden/HM450_tools
