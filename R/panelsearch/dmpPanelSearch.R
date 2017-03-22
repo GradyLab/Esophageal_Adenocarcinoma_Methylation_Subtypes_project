@@ -1,4 +1,6 @@
-# variable descriptions:
+# Function Description: get sensitivities/specificities for panels from methylation data formatted as minfi objects
+# Author: SKM
+# variables:
   # gset is GenomicRatioSet of samples from which to perform DMP analysis and assemble/test panels
   # dmpprobelist is user-specified list of probes to draw from when assembling panels
   # dmplistrange is number of dmps from which to assemble random panels
