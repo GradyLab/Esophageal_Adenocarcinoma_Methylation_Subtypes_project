@@ -1,8 +1,4 @@
-dmpPanelSearch <- function(gset,dmplistrange=20,dmpprobelist=NULL,testgroups,level1name,comb.df.n=NULL,nprobespanel=5,nprobescutoff=3,betacutoff=0.5){
-  # dependancies:
-  require(minfi)
-  
-  # variable descriptions:
+# variable descriptions:
   # gset is GenomicRatioSet of samples from which to perform DMP analysis and assemble/test panels
   # dmpprobelist is user-specified list of probes to draw from when assembling panels
   # dmplistrange is number of dmps from which to assemble random panels
@@ -13,6 +9,9 @@ dmpPanelSearch <- function(gset,dmplistrange=20,dmpprobelist=NULL,testgroups,lev
   # nprobescutoff is minimum count of probes meeting betacutoff for sample to be "positive" in panel test
   # betacutoff is methylation value cutoff for probe to be considered "positive" in sample for panel test
   
+
+dmpPanelSearch <- function(gset,dmplistrange=20,dmpprobelist=NULL,testgroups,level1name,comb.df.n=NULL,nprobespanel=5,nprobescutoff=3,betacutoff=0.5){
+  require(minfi)
   # is gset a GRS?
   if(!class(gset)=="GenomicRatioSet"){
     return(print(paste0("Gset object needs to be of class 'GenomicRatioSet'"))
