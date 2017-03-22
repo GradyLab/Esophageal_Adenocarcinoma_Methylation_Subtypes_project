@@ -25,11 +25,7 @@ log2fc.eac <- mrna.eac.t.log2fc; colnames(log2fc.eac)<-substr(colnames(log2fc.ea
 
 #================================================================
 # Preprocessing and Filtering
-
-# 
 # determine genes to include for ttest, count number of Inf vals
-#
-
 ttest.genesin <- matrix(nrow=nrow(log2fc.eac),ncol=6) 
 colnames(ttest.genesin)<-c("geneID","inf.HM","inf.NHM","inf.IM","inf.LM","inf.MM")
 for(i in 1:nrow(log2fc.eac)){
@@ -44,16 +40,13 @@ for(i in 1:nrow(log2fc.eac)){
 ttest.genesin <- as.data.frame(ttest.genesin) 
 for(i in 2:6){ttest.genesin[,i]<-as.numeric(ttest.genesin[,i])}
 
-#
 # Subtype-specific example show for HM samples:
-
 # Filter 2a. n missing /inf <= 0.4*n_samples
 testgenes.hm.nafilt <- as.character(ttest.genesin[ttest.genesin$inf.HM<(0.4*length(hmid)),1])
 exprhm <- log2fc.eac[,colnames(log2fc.eac) %in% hmid]
 
-#===============================
-# Biological relevance filters
-
+#===================================================
+# Biological relevance filters and correlation testing
 # 3. Filter genes by mean subtype log2FC <= -2 
 testgenes.hm.log2fcfilt <- rownames(exprhm[which(rowMeans(exprhm) <= -2),])
 testgenes.hm.filt <- intersect(testgenes.hm.nafilt,testgenes.hm.log2fcfilt)
@@ -72,7 +65,6 @@ annohm450.promoter=annohm450[grep("TSS|1stExon|5'UTR",annohm450$UCSC_RefGene_Gro
 testvar=gtn.hm$Tissue_Code 
 nprobecutoff=3 # available CpG count filter
 nacut.hm = 0.6*length(hmid) # above 60% n Tsubtype cutoff, region methylation not calculated
-
 # calculate and filter region methylation (mean) by gene
 hm.msummary <- mRgnSummary(testgenes=testgenes.hm.filt,
                            annohm450=annohm450.promoter,
