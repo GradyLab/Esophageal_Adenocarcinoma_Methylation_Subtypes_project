@@ -1,106 +1,97 @@
 # miRNA target gene analysis
-# Author: Sean Maden
-library(miRNAtap)
+#library(miRNAtap)
 library(org.Hs.eg.db)
-
-# lfct is log2FC converted data from Illumina HiSeq V2 RSEM-normalized counts
-# Source: https://gdac.broadinstitute.org/
 
 lfct.na <- ifelse(is.infinite(lfct),NA,lfct)
 
-#=====================
-# Example: HM vs. LM
-#=====================
-
-# pdat contains patient data linking IDs to methylation subtypes (HM/IM/LM/MM)
+#====================
+# EXAMPLE: HM vs. IM
+#====================
 hmpat <- pdat[pdat$rpmm.mgroup=="HM",]$Participant
-lmpat <- pdat[pdat$rpmm.mgroup=="LM",]$Participant
+impat <- pdat[pdat$rpmm.mgroup=="IM",]$Participant
 
-lfct.hmlm <- lfct.na[,substr(colnames(lfct.na),9,12) %in% c(hmpat,lmpat)]
-colnames(lfct.hmlm) <- substr(colnames(lfct.hmlm),9,12)
+lfct.hmim <- lfct.na[,substr(colnames(lfct.na),9,12) %in% c(hmpat,impat)]
+colnames(lfct.hmim) <- substr(colnames(lfct.hmim),9,12)
 
 # get directionally accurate genes
 mirtargets.list <- list()
-for(i in 1:length(moi.hmlm)){
-  miri <- gsub("hsa-","",moi.hmlm[i])
-  predi <- getPredictedTargets(miri,species="hsa")
-  rankpred <- predi[,'rank_product']
+for(i in 1:length(moi.hmim)){
+  miri <- moi.hmim[i] # gsub("hsa-","",moi.hmlm[i])
+  targetsi <- pci.df[pci.df$miR==miri,]$target.symbol
+ 
+  targetexpr <- lfct.hmim[rownames(lfct.hmim) %in% targetsi,]
   
-  # targets given with entrez gene ids
-  x <- org.Hs.egSYMBOL ; mapped_genes <- mappedkeys(x); xx <- as.list(x[mapped_genes]); #xx[1:5]
-  xintpred <- xx[names(xx) %in% names(rankpred)]; xintpred <- xintpred[order(match(names(xintpred),names(rankpred)))]
-  identical(names(xintpred),names(rankpred))
+  dirmiri <- vpmir.hmim[vpmir.hmim$miR==moi.hmim[i],]$dif.hmim
   
-  names(rankpred) <- as.character(unlist(xintpred)) # finally map gene symbol to rank
-  
-  targetexpr <- lfct.hmlm[rownames(lfct.hmlm) %in% names(rankpred),]
-  
-  # filter on directionality (ie. for dirmiri>0, retain genes where HM expr < LM expr
-  dirmiri <- vpmir.hmlm[vpmir.hmlm$miR==moi.hmlm[i],]$dif.hmlm
+  # filter on directionality of population expression 
+  # (eg. if miR expr: group1>group2, retain targets where mRNA expr: group1<group2)
   if(dirmiri>0){
-    targetfilter <- targetexpr[rowMeans(targetexpr[,hmpat])<rowMeans(targetexpr[,lmpat]),]
+    targetfilter <- targetexpr[rowMeans(targetexpr[,hmpat])<rowMeans(targetexpr[,impat]),]
   }
   if(dirmiri<0){
-    targetfilter <- targetexpr[rowMeans(targetexpr[,hmpat])>rowMeans(targetexpr[,lmpat]),]
+    targetfilter <- targetexpr[rowMeans(targetexpr[,hmpat])>rowMeans(targetexpr[,impat]),]
   }
   
   # NA filter, <10 samples missing
   hmnact <- apply(targetfilter[,hmpat],1,function(x){length(x[is.na(x)])})
-  lmnact <- apply(targetfilter[,lmpat],1,function(x){length(x[is.na(x)])})
-  targetfilter <- targetfilter[!(hmnact>10|lmnact>10),]
+  imnact <- apply(targetfilter[,impat],1,function(x){length(x[is.na(x)])})
+  targetfilter <- targetfilter[!(hmnact>10|imnact>10),]
   
   ttests.list <- list()
   for(j in 1:nrow(targetfilter)){
-    ttests.list[[j]] <- t.test(targetfilter[j,hmpat],targetfilter[j,lmpat])$p.value
+    ttests.list[[j]] <- t.test(targetfilter[j,hmpat],targetfilter[j,impat])$p.value
     message("finished ",j," or ",round(100*j/nrow(targetfilter)),"%")
   }
   
   targetdfi <- data.frame(HM.expr.target=rowMeans(targetfilter[,hmpat]),
-                          lm.expr.target=rowMeans(targetfilter[,lmpat]),
+                          IM.expr.target=rowMeans(targetfilter[,impat]),
                           miR.id=miri,
                           miR.dif=dirmiri,
                           targetgene.symbol=rownames(targetfilter),
                           targetgene.ttest.pval=unlist(ttests.list))
   
-  mirtargets.names <- names(mirtargets.list)
+  # mirtargets.names <- targetsi
+  namesi1 <- names(mirtargets.list)
   mirtargets.list[[i]] <- targetdfi
-  names(mirtargets.list) <- c(mirtargets.names,miri)
-  
-  message("finished ",i," miR or ",round(100*i/length(moi.hmlm)),"%")
+  names(mirtargets.list) <- c(namesi1,miri)
+ 
+  message("finished ",i," miR or ",round(100*i/length(moi.hmim)),"%")
 }
 
 
-hmlm.mirtargets.df <- as.data.frame(matrix(nrow=0,ncol=ncol(mirtargets.list[[1]])))
-colnames(hmlm.mirtargets.df) <- colnames(mirtargets.list[[1]])
+hmim.mirtargets.df <- as.data.frame(matrix(nrow=0,ncol=ncol(mirtargets.list[[1]])))
+colnames(hmim.mirtargets.df) <- colnames(mirtargets.list[[1]])
 for(k in 1:length(mirtargets.list)){
-  hmlm.mirtargets.df <- rbind(hmlm.mirtargets.df,mirtargets.list[[k]])
+  hmim.mirtargets.df <- rbind(hmim.mirtargets.df,mirtargets.list[[k]])
 }
 
 #======================================
 # Programmatically view volcano plot
 #======================================
-
-colplot <- as.character(hmlm.mirtargets.df$miR.id)
-miRuniquelist <- unique(hmlm.mirtargets.df$miR.id)
+colplot <- as.character(hmim.mirtargets.df$miR.id)
+miRuniquelist <- unique(hmim.mirtargets.df$miR.id)
 col.lvl <- sample(colours(),length(miRuniquelist))
+
 for(a in 1:length(miRuniquelist)){
   colplot[colplot==miRuniquelist[a]] <- col.lvl[a]
 }; table(colplot)
 
-jpeg("vplot-lfct-targetexpr-miR_hmlm_eac-tcga.jpg",8,7,units="in",res=400)
+xlimi <- c(-2,2); ylimi <- c(0,2.5)
 
-# define image margins, making room for legend at right
-par(oma = c(1, 1, 1, 10))
-plot(hmlm.mirtargets.df$HM.expr.target-hmlm.mirtargets.df$lm.expr.target,
-     -1*log10(hmlm.mirtargets.df$targetgene.ttest.pval),
-     xlim=c(-4,4),ylim=c(0,8),col=colplot,pch=16,
-     xlab="HM - LM",ylab = "-1*log(pval)")
+jpeg("vplot-lfct-targetexpr-miR_HM-v-IM_eac-tcga.jpg",8,7,units="in",res=400)
+
+par(oma = c(1, 1, 1, 12))
+plot(hmim.mirtargets.df$HM.expr.target-hmim.mirtargets.df$IM.expr.target,
+     -1*log10(hmim.mirtargets.df$targetgene.ttest.pval),
+     xlim=xlimi,ylim=ylimi,col=colplot,pch=16,
+     xlab="HM - IM",ylab = "-1*log(pval)")
 abline(h=-1*log10(0.05),col="purple")
 abline(v=-1,col="red"); abline(v=1,col="red")
+
 # add labels to filtered genes
-xfilt <- hmlm.mirtargets.df[hmlm.mirtargets.df$targetgene.ttest.pval<0.05 &
-                              abs(hmlm.mirtargets.df$HM.expr.target-hmlm.mirtargets.df$lm.expr.target)>=1,]
-text(xfilt$HM.expr.target-xfilt$lm.expr.target, 
+xfilt <- hmim.mirtargets.df[hmim.mirtargets.df$targetgene.ttest.pval<0.05 &
+                              abs(hmim.mirtargets.df$HM.expr.target-hmim.mirtargets.df$IM.expr.target)>=1,]
+text(xfilt$HM.expr.target-xfilt$IM.expr.target, 
      -1*log10(xfilt$targetgene.ttest.pval), 
      labels=xfilt$targetgene.symbol, cex= 0.7,pos=3)
 
@@ -115,5 +106,3 @@ legend("center",ncol=1,
        cex=0.8)
 
 dev.off()
-
-#
