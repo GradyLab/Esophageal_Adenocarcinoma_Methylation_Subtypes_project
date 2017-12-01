@@ -41,13 +41,6 @@ for(i in 1:nrow(mir.hmim.df)){
   
   mir.hmim.df[i,]$ttest.pval <- ti$p.value
 }
-
-# make volcano plot summary data frame
-vpmir.hmim <- data.frame(miR=rownames(mir.hmim.df),
-                         dif.hmim=mir.hmim.df$HM.mean-mir.hmim.df$IM.mean,
-                         negl10p=-1*log10(mir.hmim.df$ttest.pval))
-
-# HM vs. IM 
 moi.hmim <- as.character(vpmir.hmim[abs(vpmir.hmim$dif.hmim)>=1 & vpmir.hmim$negl10p >= -1*log10(0.05),]$miR)
 
 #===========
@@ -77,8 +70,6 @@ for(i in 1:nrow(mir.hmlm.df)){
 vpmir.hmlm <- data.frame(miR=rownames(mir.hmlm.df),
                          dif.hmlm=mir.hmlm.df$HM.mean-mir.hmlm.df$LM.mean,
                          negl10p=-1*log10(mir.hmlm.df$ttest.pval))
-
-# HM vs. LM 
 moi.hmlm <- as.character(vpmir.hmlm[abs(vpmir.hmlm$dif.hmlm)>=1 & vpmir.hmlm$negl10p >= -1*log10(0.05),]$miR)
 
 #================
@@ -108,8 +99,6 @@ for(i in 1:nrow(mir.hmmm.df)){
 vpmir.hmmm <- data.frame(miR=rownames(mir.hmmm.df),
                          dif.hmmm=mir.hmmm.df$HM.mean-mir.hmmm.df$MM.mean,
                          negl10p=-1*log10(mir.hmmm.df$ttest.pval))
-
-# HM vs. MM 
 moi.hmmm <- as.character(vpmir.hmmm[abs(vpmir.hmmm$dif.hmmm)>=1 & vpmir.hmmm$negl10p >= -1*log10(0.05),]$miR)
 
 #
