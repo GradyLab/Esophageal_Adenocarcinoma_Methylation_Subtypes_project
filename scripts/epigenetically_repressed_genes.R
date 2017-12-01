@@ -1,13 +1,10 @@
-# scripts for supplementary methods
-# author: SKM
+# Differential and Shared Epigenetically Repressed Genes Across EAC Methylation Subtypes
+# Script author: Sean Maden
 
 # Dependancies:
 # github functions: https://github.com/metamaden/HM450_tools
 # minfi, sva
 
-#======================================================================================
-# Differentially repressed genes across methylation subtypes
-#======================================================================================
 load(paste0(getwd(),"/gtn.rda")) # gtn a GenomicRatioSet containing TCGA tumor and normal EACs, preprocessed as above. 
 load(paste0(getwd(),"/log2fc_eac.rda") # log2fc_eac is tumor gene expression from Firehose-preprocessed dataset
 
@@ -70,6 +67,6 @@ hm.cor$padj <- p.adjust(hm.cor[,5],method="BH") # Benjamini-Hotchberg adjustment
 hm.corsig <- hm.cor[hm.cor$padj<0.05,]; 
 hm.corsig.genes <- hm.corsig[,1]; hm.corsig.genes<-hm.corsig.genes[!is.na(hm.corsig.genes)] # List of IDs of significantly epigenetically repressed gene
 
-# Repeat above for remaining groupsings and subtypes (IM, LM, MM, and NHM)
+# Repeat above for remaining EAC subtypes (IM, LM, MM)
 
 #
