@@ -1,8 +1,7 @@
-# Integrated analysis of TCGA miR RNAseq data 
-# Comparing high methylator samples to each other subtype
-# Author: Sean Maden
+# Integrated analysis of TCGA miR expression (miRNAseq)
+# Script author: Sean Maden
 
-# matmirna.log2fc converted from Illumina HiSeq V2 RNAseq RSEM-normalized expression file 
+# matmirna.log2fc converted from Illumina HiSeq V2 miRNAseq RSEM-normalized expression file 
 # Source: BROAD Firehose resource (https://gdac.broadinstitute.org/)
 
 miR.lfc <- matmirna.log2fc[,substr(colnames(matmirna.log2fc),14,15)=="01"] # filter out normal samples
