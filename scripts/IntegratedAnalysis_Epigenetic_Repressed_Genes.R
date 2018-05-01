@@ -2,7 +2,7 @@
 # Script author: Sean Maden
 
 # Dependencies:
-# github functions: https://github.com/metamaden/HM450_tools
+# github functions: ~blob/master/scripts/functions.R
 # Bioconductor packages: minfi, sva
 
 load(paste0(getwd(),"/gtn.rda")) # gtn a GenomicRatioSet containing TCGA tumor and normal EACs, preprocessed as described in Methods. 
