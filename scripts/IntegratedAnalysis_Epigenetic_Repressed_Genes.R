@@ -1,9 +1,9 @@
 # Differential and Shared Epigenetically Repressed Genes Across EAC Methylation Subtypes
 # Script author: Sean Maden
 
-# Dependancies:
+# Dependencies:
 # github functions: https://github.com/metamaden/HM450_tools
-# minfi, sva
+# Bioconductor packages: minfi, sva
 
 load(paste0(getwd(),"/gtn.rda")) # gtn a GenomicRatioSet containing TCGA tumor and normal EACs, preprocessed as above. 
 load(paste0(getwd(),"/log2fc_eac.rda") # log2fc_eac is tumor gene expression from Firehose-preprocessed dataset
