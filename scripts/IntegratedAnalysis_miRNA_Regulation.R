@@ -24,7 +24,7 @@ mir.hmim.df <- data.frame(HM.mean=rowMeans(mir.hmim[,colnames(mir.hmim) %in% hmp
                           IM.mean=rowMeans(mir.hmim[,colnames(mir.hmim) %in% impat],na.rm=TRUE),
                           HM.nact=apply(mir.hmim[,colnames(mir.hmim) %in% hmpat],1,function(x){length(x[is.na(x)])}),
                           IM.nact=apply(mir.hmim[,colnames(mir.hmim) %in% impat],1,function(x){length(x[is.na(x)])}),
-                          ttest.pval=rep(NA,nrow(mir.hmim)))
+                          ttest.pval=rep(NA,nrow(mir.hmim)),stringsAsFactors=F)
 rownames(mir.hmim.df) <- rownames(mir.hmim)
 
 # apply NA filter (<=10 missing samples)
@@ -40,6 +40,14 @@ for(i in 1:nrow(mir.hmim.df)){
   
   mir.hmim.df[i,]$ttest.pval <- ti$p.value
 }
+
+# 'vp' df is sufficient to make a volcano plot from the data
+vpmir.hmim <- data.frame(miR=rownames(mir.hmim.df),
+                         dif.hmmm=mir.hmim.df$HM.mean-mir.hmim.df$IM.mean,
+                         negl10p=-1*log10(mir.hmim.df$ttest.pval),
+                        stringsAsFactors=F)
+
+# 'moi' is list of names of miR's of interest
 moi.hmim <- as.character(vpmir.hmim[abs(vpmir.hmim$dif.hmim)>=1 & vpmir.hmim$negl10p >= -1*log10(0.05),]$miR)
 
 #===========
@@ -53,7 +61,7 @@ mir.hmlm.df <- data.frame(HM.mean=rowMeans(mir.hmlm[,colnames(mir.hmlm) %in% hmp
                           LM.mean=rowMeans(mir.hmlm[,colnames(mir.hmlm) %in% lmpat],na.rm=TRUE),
                           HM.nact=apply(mir.hmlm[,colnames(mir.hmlm) %in% hmpat],1,function(x){length(x[is.na(x)])}),
                           LM.nact=apply(mir.hmlm[,colnames(mir.hmlm) %in% lmpat],1,function(x){length(x[is.na(x)])}),
-                          ttest.pval=rep(NA,nrow(mir.hmlm)))
+                          ttest.pval=rep(NA,nrow(mir.hmlm)),stringsAsFactors=F)
 rownames(mir.hmlm.df) <- rownames(mir.hmlm)
 
 mir.hmlm.df <- mir.hmlm.df[mir.hmlm.df$HM.nact<=10 & mir.hmlm.df$LM.nact<=10 ,]; dim(mir.hmlm.df) # NA filter
@@ -68,7 +76,8 @@ for(i in 1:nrow(mir.hmlm.df)){
 
 vpmir.hmlm <- data.frame(miR=rownames(mir.hmlm.df),
                          dif.hmlm=mir.hmlm.df$HM.mean-mir.hmlm.df$LM.mean,
-                         negl10p=-1*log10(mir.hmlm.df$ttest.pval))
+                         negl10p=-1*log10(mir.hmlm.df$ttest.pval),
+                        stringsAsFactors=F)
 moi.hmlm <- as.character(vpmir.hmlm[abs(vpmir.hmlm$dif.hmlm)>=1 & vpmir.hmlm$negl10p >= -1*log10(0.05),]$miR)
 
 #================
@@ -82,7 +91,7 @@ mir.hmmm.df <- data.frame(HM.mean=rowMeans(mir.hmmm[,colnames(mir.hmmm) %in% hmp
                           MM.mean=rowMeans(mir.hmmm[,colnames(mir.hmmm) %in% mmpat],na.rm=TRUE),
                           HM.nact=apply(mir.hmmm[,colnames(mir.hmmm) %in% hmpat],1,function(x){length(x[is.na(x)])}),
                           LM.nact=apply(mir.hmmm[,colnames(mir.hmmm) %in% mmpat],1,function(x){length(x[is.na(x)])}),
-                          ttest.pval=rep(NA,nrow(mir.hmmm)))
+                          ttest.pval=rep(NA,nrow(mir.hmmm)),stringsAsFactors=F)
 rownames(mir.hmmm.df) <- rownames(mir.hmmm)
 
 mir.hmmm.df <- mir.hmmm.df[mir.hmmm.df$HM.nact<=10 & mir.hmmm.df$LM.nact<=10 ,]; dim(mir.hmmm.df) # NA filter
@@ -97,7 +106,8 @@ for(i in 1:nrow(mir.hmmm.df)){
 
 vpmir.hmmm <- data.frame(miR=rownames(mir.hmmm.df),
                          dif.hmmm=mir.hmmm.df$HM.mean-mir.hmmm.df$MM.mean,
-                         negl10p=-1*log10(mir.hmmm.df$ttest.pval))
+                         negl10p=-1*log10(mir.hmmm.df$ttest.pval),
+                        stringsAsFactors=F)
 moi.hmmm <- as.character(vpmir.hmmm[abs(vpmir.hmmm$dif.hmmm)>=1 & vpmir.hmmm$negl10p >= -1*log10(0.05),]$miR)
 
 #
